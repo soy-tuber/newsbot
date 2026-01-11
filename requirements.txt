@@ -1,4 +1,5 @@
 streamlit
-llama-index-llms-gemini
+llama-index-core
+llama-index-llms-google-genai
 youtube-transcript-api
 scrapetube
