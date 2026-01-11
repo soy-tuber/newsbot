@@ -1,0 +1,4 @@
+streamlit
+llama-index-llms-gemini
+youtube-transcript-api
+scrapetube
