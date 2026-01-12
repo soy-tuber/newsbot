@@ -13,22 +13,33 @@ if "last_update" not in st.session_state:
 
 def fetch_latest_titles():
     try:
-        videos = scrapetube.get_channel("UCknLrEdhRCp1aegoMqRaCZg", limit=12, content_type="videos")
-        video_list = list(videos)[:10]
+        videos = scrapetube.get_channel("UCknLrEdhRCp1aegoMqRaCZg", limit=5, content_type="videos")
+        video_list = list(videos)[:5]
         
         news_items = []
-        for video in video_list:
+        for i, video in enumerate(video_list):
+            # タイトルデータの取得
             title_data = video.get('title', {})
-            # 🔥 ここが重要！title_data が完全でコロンあり
+            
+            # 辞書構造(runs)からテキストのみを抽出
             if isinstance(title_data, dict) and 'runs' in title_data:
-                title = title_data['runs'][0]['text'] if title_data['runs'] else 'NO TITLE'
+                # runs[0]['text'] に実際のタイトル文字列が入っています
+                raw_title = title_data['runs'][0].get('text', 'NO TEXT')
+            elif isinstance(title_data, dict) and 'RUNS' in title_data:
+                # 大文字の場合の予備対応
+                raw_title = title_data['RUNS'][0].get('TEXT', 'NO TEXT')
             else:
-                title = str(title_data).strip()
-            title = title.strip().replace('\n', ' ')[:90].upper()
-            news_items.append(title)
+                raw_title = str(title_data)
+            
+            # きれいに整形
+            news_item = raw_title.strip().replace('\n', ' ').upper()
+            news_items.append(news_item)
+            # st.write(f"  {i+1}: {news_item}") # 必要ならコメント解除
+        
         return news_items
-    except:
-        return ["DW NEWS: LIVE UPDATES"] * 10
+    except Exception as e:
+        st.error(f"❌ エラー: {str(e)}")
+        return ["DW NEWS: FETCH ERROR"]
 
 def get_combined_news_briefs():
     now = time.time()
