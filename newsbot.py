@@ -24,7 +24,6 @@ def get_combined_news_briefs():
         st.write("🔍 STEP 3.1: scrapetube getting videos...")
         videos = scrapetube.get_channel("UCknLrEdhRCp1aegoMqRaCZg", limit=6, content_type="videos")
         videos_list = list(videos)
-        st.write(f"🔍 STEP 3.2: got {len(videos_list)} videos")
         
         all_summaries = []
         for i, video in enumerate(videos_list):
