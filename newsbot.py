@@ -20,7 +20,7 @@ def fetch_latest_titles():
         for video in video_list:
             title_data = video.get('title', {})
             # 🔥 ここが重要！title_data が完全でコロンあり
-            if isinstance(title_data, dict) and 'RUNS' in title_
+            if isinstance(title_data, dict) and 'RUNS' in title_data:
                 title = title_data['RUNS'][0]['TEXT'] if title_data['RUNS'] else 'NO TITLE'
             else:
                 title = str(title_data).strip()
