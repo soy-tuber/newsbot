@@ -4,115 +4,64 @@ from youtube_transcript_api import YouTubeTranscriptApi
 import scrapetube
 from llama_index.llms.google_genai import GoogleGenAI
 
-# --- Streamlit Config ---
 st.set_page_config(layout="wide")
 
+# ========== デバッグ用ステップ表示 ==========
+st.write("🔍 STEP 1: app start")
+
 api_key = st.secrets.get("GEMINI_API_KEY")
+st.write("🔍 STEP 2: got api_key:", bool(api_key))
 if not api_key:
-    st.error("GEMINI_API_KEY not found.")
+    st.error("❌ GEMINI_API_KEY not found.")
     st.stop()
 
-llm = GoogleGenAI(model="models/gemini-2.5-flash", api_key=api_key)
+st.write("🔍 STEP 3: before get_combined_news_briefs")
 
-# 15分間キャッシュして高速化
+# 15分間キャッシュして高速化（デバッグ中は一旦外す）
 @st.cache_data(ttl=900)
 def get_combined_news_briefs():
     try:
-        # 最新の動画を3件取得（確実に字幕があるものを探すため、少し多めの6件からスキャン）
+        st.write("🔍 STEP 3.1: scrapetube getting videos...")
         videos = scrapetube.get_channel("UCknLrEdhRCp1aegoMqRaCZg", limit=6, content_type="videos")
+        videos_list = list(videos)
+        st.write(f"🔍 STEP 3.2: got {len(videos_list)} videos")
         
         all_summaries = []
-        
-        for video in videos:
-            if len(all_summaries) >= 3: # 3つ取れたら終了
+        for i, video in enumerate(videos_list):
+            if len(all_summaries) >= 3:
                 break
-                
             video_id = video['videoId']
+            st.write(f"🔍 STEP 3.3: trying video {i+1}: {video_id}")
+            
             try:
                 transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-                transcript_text = " ".join([i['text'] for i in transcript_list])
-
-                # 3つなので、1つあたりの情報を少し詳しく（40語程度）にする
-                prompt = (
-                    f"Analyze this DW news transcript and provide a professional one-sentence summary (approx 40 words). "
-                    f"Include key facts and the significance of the event. Output in English: {transcript_text[:8000]}"
-                )
-                
-                response = llm.complete(prompt)
-                summary = str(response.text).strip().replace("\n", " ").upper()
-                all_summaries.append(summary)
-            except:
-                continue # 字幕がない動画（ライブ等）はスキップして次を探す
+                st.write(f"🔍 STEP 3.4: transcript OK ({len(transcript_list)} lines)")
+                # Gemini呼び出しは一旦スキップ
+                all_summaries.append(f"TEST SUMMARY {i+1}")
+            except Exception as e:
+                st.write(f"🔍 STEP 3.5: transcript failed: {str(e)[:100]}")
+                continue
 
         if not all_summaries:
-            return "DW NEWS: MONITORING LATEST GLOBAL DEVELOPMENTS. CHECK BACK SHORTLY FOR UPDATES."
-        
-        # 3つのニュースを太めのセパレーターで繋ぐ
+            return "DW NEWS: NO TRANSCRIPTS FOUND"
         return "  ■  ".join(all_summaries)
 
     except Exception as e:
-        return "DW NEWS SERVICE: CURRENTLY UPDATING GLOBAL REPORTS."
+        st.write(f"🔍 ERROR in get_combined_news_briefs: {str(e)}")
+        return "DW NEWS SERVICE: ERROR OCCURRED"
 
-# ニュース内容の取得
 news_text = get_combined_news_briefs()
+st.write("🔍 STEP 4: news_text =", news_text[:200])
 
-# --- ニュースティッカー用HTML/CSS (トーン抑えめ・3連最適化) ---
-ticker_html = f"""
+st.write("🔍 STEP 5: before components.html")
+
+# シンプルなテストHTML
+test_html = """
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&display=swap');
-    body {{ margin: 0; background: transparent; overflow: hidden; }}
-    .ticker-container {{
-        width: 100%;
-        background-color: #2c3e50;
-        color: #ecf0f1;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        font-family: 'Roboto Condensed', sans-serif;
-        border-top: 1px solid #34495e;
-        border-bottom: 2px solid #7f8c8d;
-    }}
-    .label {{
-        background: #7f8c8d;
-        padding: 0 15px;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        font-size: 13px;
-        font-weight: bold;
-        z-index: 10;
-        box-shadow: 3px 0 10px rgba(0,0,0,0.3);
-    }}
-    .ticker-content {{
-        flex: 1;
-        overflow: hidden;
-        white-space: nowrap;
-        display: flex;
-        align-items: center;
-    }}
-    .scrolling-text {{
-        display: inline-block;
-        padding-left: 100%;
-        font-size: 14px;
-        letter-spacing: 0.8px;
-        animation: scroll-left 60s linear infinite; /* 3件なので60秒で快適に読める */
-    }}
-    @keyframes scroll-left {{
-        0% {{ transform: translateX(0); }}
-        100% {{ transform: translateX(-100%); }}
-    }}
-    .sep {{ color: #bdc3c7; margin: 0 30px; font-weight: bold; }}
+.ticker { background: #2c3e50; color: #ecf0f1; padding: 10px; font-family: Arial; }
 </style>
-
-<div class="ticker-container">
-    <div class="label">DW NEWS BRIEF</div>
-    <div class="ticker-content">
-        <div class="scrolling-text">
-            {news_text} <span class="sep">|</span> 
-            GENKAI AI SYSTEM STATUS: ONLINE <span class="sep">|</span>
-        </div>
-    </div>
-</div>
+<div class="ticker">TEST TICKER: """ + news_text[:100] + """</div>
 """
+components.html(test_html, height=50)
 
-components.html(ticker_html, height=40)
+st.write("✅ STEP 6: components.html executed")
