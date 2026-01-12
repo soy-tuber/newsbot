@@ -12,18 +12,29 @@ if "last_update" not in st.session_state:
     st.session_state.last_update = 0
 
 def fetch_latest_titles():
-    """修正：titleを確実に文字列化"""
     try:
         videos = scrapetube.get_channel("UCknLrEdhRCp1aegoMqRaCZg", limit=5, content_type="videos")
         video_list = list(videos)[:5]
         
         news_items = []
         for i, video in enumerate(video_list):
-            # 🔥 修正：str()で強制文字列化
-            title = str(video.get('title', 'NO TITLE')).strip().replace('\n', ' ')
-            news_item = title[:80].upper()
+            # タイトルデータの取得
+            title_data = video.get('title', {})
+            
+            # 辞書構造(runs)からテキストのみを抽出
+            if isinstance(title_data, dict) and 'runs' in title_data:
+                # runs[0]['text'] に実際のタイトル文字列が入っています
+                raw_title = title_data['runs'][0].get('text', 'NO TEXT')
+            elif isinstance(title_data, dict) and 'RUNS' in title_data:
+                # 大文字の場合の予備対応
+                raw_title = title_data['RUNS'][0].get('TEXT', 'NO TEXT')
+            else:
+                raw_title = str(title_data)
+            
+            # きれいに整形
+            news_item = raw_title.strip().replace('\n', ' ').upper()
             news_items.append(news_item)
-            st.write(f"  {i+1}: {news_item}")  # デバッグ用
+            # st.write(f"  {i+1}: {news_item}") # 必要ならコメント解除
         
         return news_items
     except Exception as e:
