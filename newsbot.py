@@ -40,24 +40,57 @@ def get_combined_news_briefs():
 news_text = get_combined_news_briefs()
 last_update = datetime.fromtimestamp(st.session_state.last_update).strftime("%H:%M")
 
+　　# 43行目付近からの ticker_html 定義を以下のように修正（CSS内の括弧を2重に）
 ticker_html = f"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&display=swap');
-body {{ margin: 0; background: transparent; overflow: hidden; }}
-.ticker-container {{
-    width: 100%; background: linear-gradient(90deg, #1a252f 0%, #2c3e50 100%);
-    color: #ecf0f1; height: 36px; display: flex; align-items: center;
-    font-family: 'Roboto+Condensed', sans-serif; border-bottom: 2px solid #7f8c8d;
-}}
-.label {{ 
-    background: linear-gradient(145deg, #7f8c8d, #95a5a6); 
-    padding: 0 10px; height: 100%; display: flex; align-items: center;
-    font-size: 11px; font-weight: 700; min-width: 75px; writing-mode: vertical-rl;
-}}
-.ticker-content {{ flex: 1; overflow: hidden; white-space: nowrap; padding-right: 8px; }}
-.scrolling-text {{
-    display: inline-block; padding-left: 100%; font-size: 12px; letter-spacing: 0.4px;
-    animation: scroll-left 90s linear infinite;
-}}
-@keyframes scroll-left {{ 0% {{ transform: translateX(0); }} 100% {{ transform: translateX(-100%); }} }}
-</st
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&display=swap');
+    body {{ margin: 0; background: transparent; overflow: hidden; padding: 0; }}
+    .ticker-container {{
+        width: 100%;
+        background-color: #2c3e50;
+        color: #ecf0f1;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        font-family: 'Roboto Condensed', sans-serif;
+        border-top: 1px solid #34495e;
+        border-bottom: 2px solid #7f8c8d;
+    }}
+    .label {{
+        background: #7f8c8d;
+        padding: 0 15px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+        font-weight: bold;
+        z-index: 10;
+        white-space: nowrap;
+    }}
+    .ticker-content {{
+        flex: 1;
+        overflow: hidden;
+        white-space: nowrap;
+    }}
+    .scrolling-text {{
+        display: inline-block;
+        padding-left: 100%;
+        font-size: 14px;
+        animation: scroll-left 60s linear infinite;
+    }}
+    @keyframes scroll-left {{
+        0% {{ transform: translateX(0); }}
+        100% {{ transform: translateX(-100%); }}
+    }}
+</style>
+<div class="ticker-container">
+    <div class="label">DW NEWS BRIEF</div>
+    <div class="ticker-content">
+        <div class="scrolling-text">
+            {news_text}  |  GENKAI AI SYSTEM STATUS: ONLINE  |
+        </div>
+    </div>
+</div>
+"""
+
+
