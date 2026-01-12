@@ -40,7 +40,7 @@ def get_combined_news_briefs():
 news_text = get_combined_news_briefs()
 last_update = datetime.fromtimestamp(st.session_state.last_update).strftime("%H:%M")
 
-　　# 43行目付近からの ticker_html 定義を以下のように修正（CSS内の括弧を2重に）
+# 43行目付近からの ticker_html 定義を以下のように修正（CSS内の括弧を2重に）
 ticker_html = f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&display=swap');
