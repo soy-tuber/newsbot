@@ -53,25 +53,4 @@ body {{ margin: 0; background: transparent; overflow: hidden; }}
     color: #ecf0f1; height: 36px; display: flex; align-items: center;
     font-family: 'Roboto+Condensed', sans-serif; border-bottom: 2px solid #7f8c8d;
 }}
-.label {{ 
-    background: linear-gradient(145deg, #7f8c8d, #95a5a6); 
-    padding: 0 10px; height: 100%; display: flex; align-items: center;
-    font-size: 11px; font-weight: 700; min-width: 75px; writing-mode: vertical-rl;
-}}
-.ticker-content {{ flex: 1; overflow: hidden; white-space: nowrap; padding-right: 8px; }}
-.scrolling-text {{
-    display: inline-block; padding-left: 100%; font-size: 12px; letter-spacing: 0.4px;
-    animation: scroll-left 90s linear infinite; /* 10個→遅め90秒 */
-}}
-@keyframes scroll-left {{ 0% {{ transform: translateX(0); }} 100% {{ transform: translateX(-100%); }} }}
-</style>
-<div class="ticker-container">
-    <div class="label">WORLD<br>{last_update}</div>
-    <div class="ticker-content">
-        <div class="scrolling-text">{news_text} | GENKAI AI: ONLINE</div>
-    </div>
-</div>
-"""
-components.html(ticker_html, height=36)
-
-
+.labe
